@@ -153,6 +153,23 @@ Context is a new feature that was added in Laravel 11, it allows you to share da
 
 Cache Facade allows you to store key values via multiple drivers and implementations and gives you atomic locks as well, Cache is shared across multiple requests unlike Context which dies after a process is terminated.
 
-//out of time to share examples, I'm  make a laravel package laravel-debounce and I'm using two implementations with caching and context.
+I'm  making a laravel package laravel-debounce and I'm using two implementations with caching and context.
+
+Example:
+
+1- We can cache data that is relatively static, like a list of countries.
+every request will get access to the same cached countries if it's still withing the `ttl`
+```php
+    $countries = Cache::get('countries') ?? Cache::remember('countries',3600,fn()=>country::all());
+```
+2- using Context we can achieve the same thing but for the current process only, meaning the countries will be queried at leas once. also for now context doesn't support ttl.
+
+```php
+    $countries = Context::get('countries') ?? Cache::add('countries',country::all());
+```
 
 C) What's the difference between $query->update(), $model->update(), and $model->updateQuietly() in Laravel, and when would you use each?
+
+$query->update() uses database query builder without interacting with eloquent level, usually needed in migrations for example.
+$model->update() uses eloquent ORM therefore events are dispatched and observer methods are called as well.
+$model->updateQuietly() allows you to update without event from eloquent level without reaching form query builder or SQL.
